@@ -10,6 +10,11 @@ import { SystemManager   } from '../../token-action-hud-core/scripts/system-mana
 import { Utils           } from '../../token-action-hud-core/scripts/utilities/utils.js'
 */
 
+const SKILLS_ID    = 'skills';
+const POOLS_ID     = 'pools';
+const ABILITIES_ID = 'abilities';
+const COMBAT_ID    = 'combat';
+
 /* ACTIONS */
 
 class MyActionHandler extends ActionHandler {
@@ -29,10 +34,10 @@ class MyActionHandler extends ActionHandler {
           return;
         }        
 
-        this._getPools(actor, tokenId, { id: 'pools', type: 'system' })
-        this._getSkills(actor, tokenId, { id: 'skills', type: 'system' })
-        this._getCombat(actor, tokenId, { id: 'combat', type: 'system' })
-        this._getAbilities(actor, tokenId, { id: 'abilities', type: 'system' })
+        this._getPools(actor,     tokenId, { id: POOLS_ID,     type: 'system' })
+        this._getSkills(actor,    tokenId, { id: SKILLS_ID,    type: 'system' })
+        this._getCombat(actor,    tokenId, { id: COMBAT_ID,    type: 'system' })
+        this._getAbilities(actor, tokenId, { id: ABILITIES_ID, type: 'system' })
       
         //if (settings.get("showHudTitle")) result.hudTitle = token.name;
     }
@@ -191,71 +196,77 @@ export class MySystemManager extends SystemManager {
     }*/
 
     async doRegisterDefaultFlags () {
+
+        const SKILLS_NAME    = game.i18n.localize('CYPHERSYSTEM.Skills');
+        const ABILITIES_NAME = game.i18n.localize('CYPHERSYSTEM.Abilities');
+        const POOLS_NAME     = game.i18n.localize('CYPHERSYSTEM.Pool');
+        const COMBAT_NAME    = game.i18n.localize('CYPHERSYSTEM.Combat');
+        
         const DEFAULTS = {
             categories: [
                 {
-                    nestId: 'pools',
-                    id: 'pools',
-                    name: 'Pools',
-                    type: 'system',
+                    nestId: POOLS_ID,
+                    id:     POOLS_ID,
+                    name:   POOLS_NAME,
+                    type:   'system',
                     subcategories: [
                         {
                             nestId: 'pools_pools',
-                            id: 'pools',
-                            name: 'Pools',
-                            type: 'system',
+                            id:     POOLS_ID,
+                            name:   POOLS_NAME,
+                            type:   'system',
                             hasDerivedSubcategories: false
                         }
                     ]
                 },
                 {
-                    nestId: 'skills',
-                    id: 'skills',
-                    name: 'Skills',
-                    type: 'system',
+                    nestId: SKILLS_ID,
+                    id:     SKILLS_ID,
+                    name:   SKILLS_NAME,
+                    type:   'system',
                     subcategories: [
                         {
                             nestId: 'skills_skills',
-                            id: 'skills',
-                            name: 'Skills',
-                            type: 'system'
+                            id:     SKILLS_ID,
+                            name:   SKILLS_NAME,
+                            type:   'system'
                         }
                     ]
                 },
                 {
-                    nestId: 'combat',
-                    id: 'combat',
-                    name: 'Combat',
-                    type: 'system',
+                    nestId: COMBAT_ID,
+                    id:     COMBAT_ID,
+                    name:   COMBAT_NAME,
+                    type:   'system',
                     subcategories: [
                         {
                             nestId: 'combat_combat',
-                            id: 'combat',
-                            name: 'Combat',
+                            id:     COMBAT_ID,
+                            name:   COMBAT_NAME,
                             type: 'system'
                         }
                     ]
                 },
                 {
-                    nestId: 'abilities',
-                    id: 'abilities',
-                    name: 'Abilities',
-                    type: 'system',
+                    nestId: ABILITIES_ID,
+                    id:     ABILITIES_ID,
+                    name:   ABILITIES_NAME,
+                    type:   'system',
                     subcategories: [
                         {
                             nestId: 'abilities_abilities',
-                            id: 'abilities',
-                            name: 'Abilities',
-                            type: 'system'
+                            id:     ABILITIES_ID,
+                            name:   ABILITIES_NAME,
+                            type:   'system'
                         }
                     ]
                 },
             ],
             subcategories: [
-                { id: 'abilities', name: 'Abilities', type: 'system', hasDerivedSubcategories: true},
-                { id: 'combat', name: 'Combat', type: 'system', hasDerivedSubcategories: false },
-                { id: 'pools', name: 'Pools', type: 'system', hasDerivedSubcategories: false },
-                { id: 'skills', name: 'Skills', type: 'system', hasDerivedSubcategories: true }
+                { id: ABILITIES_ID, name: ABILITIES_NAME, type: 'system', hasDerivedSubcategories: true  },
+                { id: COMBAT_ID,    name: COMBAT_NAME,    type: 'system', hasDerivedSubcategories: false },
+                { id: POOLS_ID,     name: POOLS_NAME,     type: 'system', hasDerivedSubcategories: false },
+                { id: SKILLS_ID,    name: SKILLS_NAME,    type: 'system', hasDerivedSubcategories: true  }
             ]
         }
         await Utils.setUserFlag('default', DEFAULTS)
