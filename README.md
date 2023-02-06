@@ -1,6 +1,6 @@
 # Introduction
 
-A plug-in module for the  Core module [Token Action HUD](https://foundryvtt.com/packages/token-action-hud-core) which adds support for the [Cypher System](https://foundryvtt.com/packages/cyphersystem).
+A plug-in module for the module [Token Action HUD Core](https://foundryvtt.com/packages/token-action-hud-core) which adds support for the [Cypher System](https://foundryvtt.com/packages/cyphersystem).
 
 ## Installation
 
