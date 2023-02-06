@@ -1,64 +1,16 @@
-/* TOKEN ACTION HUD DND5E CONFIG.JS */
-/*
-const coreModulePath = '../../token-action-hud-core/scripts/token-action-hud-core.min.js'
-const coreModule = await import(coreModulePath)
-const CoreActionHandler = coreModule.ActionHandler
-//const CoreActionListExtender = coreModule.ActionListExtender
-const CoreCategoryManager = coreModule.CategoryManager
-//export const CorePreRollHandler = coreModule.PreRollHandler
-const CoreRollHandler = coreModule.RollHandler
-const CoreSystemManager = coreModule.SystemManager
-//const CoreUtils = coreModule.Utils
-//const Logger = coreModule.Logger
-*/
+// FOR LIVE
+import { ActionHandler, CategoryManager, RollHandler, SystemManager, Utils } from '../../token-action-hud-core/scripts/token-action-hud-core.min.js'
 
 // For DEBUGGING
+/*
 import { ActionHandler   } from '../../token-action-hud-core/scripts/action-handlers/action-handler.js'
 import { CategoryManager } from '../../token-action-hud-core/scripts/category-manager.js'
 import { RollHandler     } from '../../token-action-hud-core/scripts/roll-handlers/roll-handler.js'
 import { SystemManager   } from '../../token-action-hud-core/scripts/system-manager.js'
 import { Utils           } from '../../token-action-hud-core/scripts/utilities/utils.js'
-//export const CorePreRollHandler = coreModule.PreRollHandler
-//const ActionListExtender = coreModule.ActionListExtender
-//const CoreUtils = coreModule.Utils
-//const Logger = coreModule.Logger
-
+*/
 
 /* ACTIONS */
-
-/*
-ActionList 
-{
-    "tokenId": "Normally token._id"
-    "actionId": "Normally token.actor._id"
-    "categories": []
-}
-
-A category:
-{
-    "id": 'Used for filtering',
-    "name": 'Category title',
-    "subcategories": []
-}
-
-A subcategory:
-{
-    id: 'Not used currently',
-    name: 'Subcategory title',
-    info1: 'Extra information to display alongside the category',
-    actions: [],
-    subcategories: []
-}
-
-An action:
-    {
-        name: "The name of the item",
-        info1: "",
-        info2: "",
-        cssClass: "",
-        encodedValue: "";
-    }
-*/
 
 class MyActionHandler extends ActionHandler {
     constructor(categoryManager) {
