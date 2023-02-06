@@ -94,7 +94,7 @@ class MyActionHandler extends ActionHandler {
             actions.push({
                 id: key,
                 name: game.i18n.localize(`CYPHERSYSTEM.${key.capitalize()}`),
-                encodedValue: ["pool", tokenId, key.capitalize()].join(this.delimiter),
+                encodedValue: ["pool", actor.id, tokenId, key.capitalize()].join(this.delimiter),
                 //icon: 
                 selected: true
             });
@@ -116,7 +116,7 @@ class MyActionHandler extends ActionHandler {
         const actions = actor.items.filter( item => item.type === 'attack').map( item => { return {
             id: item.name,
             name: item.name,
-            encodedValue: ["attack", tokenId, item.id].join(this.delimiter),
+            encodedValue: ["attack", actor.id, tokenId, item.id].join(this.delimiter),
             //icon: ,
             selected: true
         }})
@@ -129,44 +129,32 @@ class MyActionHandler extends ActionHandler {
         for (const item of actor.items.filter( item => item.type === itemtype && item.system.settings.general.sorting === sorting)) {
             actions.push({
                 name: item.name,
-                encodedValue: [itemtype, tokenId, item.id].join(this.delimiter),
+                encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
             });
         }
         if (actions.length) {
-            const maincat = { id: sorting, name: label};
-            this.addActionsToActionList(maincat, parent);
-            this.addSubcategoryToActionList(
-                game.i18n.localize(label),
-                parent
-            );
-            const subcat = { id : sorting, type: 'system'};
-            this.addSubcategoryToActionList(maincat, subcat)  // (parentCat, subcatClone)
-            this.addSubcategoryInfo(subcat)
+            const subcat = { id: sorting, name: Utils.i18n(label), type: 'system-derived'};
+            this.addSubcategoryToActionList(parent, subcat);
+            this.addActionsToActionList(actions, subcat);
         }
     }
 
     _getSkills(actor, tokenId, parent) {
         // up to four groups of skills
-        let actions = [];
         const table = {
             Skill:      actor.system.settings.skills.labelCategory1 || 'CYPHERSYSTEM.Skills',
             SkillTwo:   actor.system.settings.skills.labelCategory2 || 'CYPHERSYSTEM.SkillCategoryTwo',
             SkillThree: actor.system.settings.skills.labelCategory3 || 'CYPHERSYSTEM.SkillCategoryThree',
             SkillFour:  actor.system.settings.skills.labelCategory4 || 'CYPHERSYSTEM.SkillCategoryFour',
         }
-        for (const sorting of Object.keys(table)) {
-            actions.push(
-                this.createList(parent, actor, tokenId, 'skill', sorting, table[sorting])
-            );
-        }
 
-        this.addActionsToActionList(actions, parent);
+        for (const sorting of Object.keys(table)) {
+            this.createList(parent, actor, tokenId, 'skill', sorting, table[sorting])
+        }
     }
 
     _getAbilities(actor, tokenId, parent) {
         // up to four groups of abilities
-        let actions = [];
-
         const table = {
             Ability:      actor.system.settings.abilities.labelCategory1 || 'CYPHERSYSTEM.Abilities',
             AbilityTwo:   actor.system.settings.abilities.labelCategory2 || 'CYPHERSYSTEM.AbilityCategoryTwo',
@@ -178,8 +166,6 @@ class MyActionHandler extends ActionHandler {
         for (const sorting of Object.keys(table)) {
             this.createList(parent, actor, tokenId, 'ability', sorting, table[sorting]);
         }
-
-        this.addActionsToActionList(actions, parent);
     }
 
 }
@@ -191,15 +177,16 @@ class MyRollHandler extends RollHandler {
     doHandleActionEvent(event, encodedValue) {
         let payload = encodedValue.split("|");
     
-        if (payload.length != 3) {
+        if (payload.length != 4) {
           super.throwInvalidValueErr();
         }
     
         let macroType = payload[0];
-        let tokenId = payload[1];
-        let actionId = payload[2];
+        let actorId = payload[1];
+        let tokenId = payload[2];
+        let actionId = payload[3];
     
-        let actor = super.getActor(tokenId);
+        let actor = Utils.getActor(actorId, tokenId);
     
         switch (macroType) {
           case 'pool':
@@ -266,30 +253,57 @@ export class MySystemManager extends SystemManager {
                             name: 'Pools',
                             type: 'system',
                             hasDerivedSubcategories: false
-                        },
+                        }
                     ]
                 },
                 {
                     nestId: 'skills',
                     id: 'skills',
                     name: 'Skills',
-                    type: 'system'
+                    type: 'system',
+                    subcategories: [
+                        {
+                            nestId: 'skills_skills',
+                            id: 'skills',
+                            name: 'Skills',
+                            type: 'system'
+                        }
+                    ]
                 },
                 {
                     nestId: 'combat',
                     id: 'combat',
                     name: 'Combat',
-                    type: 'system'
+                    type: 'system',
+                    subcategories: [
+                        {
+                            nestId: 'combat_combat',
+                            id: 'combat',
+                            name: 'Combat',
+                            type: 'system'
+                        }
+                    ]
                 },
                 {
                     nestId: 'abilities',
                     id: 'abilities',
                     name: 'Abilities',
-                    type: 'system'
+                    type: 'system',
+                    subcategories: [
+                        {
+                            nestId: 'abilities_abilities',
+                            id: 'abilities',
+                            name: 'Abilities',
+                            type: 'system'
+                        }
+                    ]
                 },
             ],
             subcategories: [
+                { id: 'abilities', name: 'Abilities', type: 'system', hasDerivedSubcategories: true},
+                { id: 'combat', name: 'Combat', type: 'system', hasDerivedSubcategories: false },
                 { id: 'pools', name: 'Pools', type: 'system', hasDerivedSubcategories: false },
+                { id: 'skills', name: 'Skills', type: 'system', hasDerivedSubcategories: true }
             ]
         }
         await Utils.setUserFlag('default', DEFAULTS)
