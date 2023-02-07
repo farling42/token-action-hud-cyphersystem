@@ -14,6 +14,14 @@ const SKILLS_ID    = 'skills';
 const POOLS_ID     = 'pools';
 const ABILITIES_ID = 'abilities';
 const COMBAT_ID    = 'combat';
+const TAGS_ID      = 'tags';
+
+const ACTION_POOL      = 'pool';
+const ACTION_ABILITY   = 'ability';
+const ACTION_SKILL     = 'skill';
+const ACTION_ATTACK    = 'attack';
+const ACTION_RECURSION = 'recursion';
+const ACTION_TAG       = 'tag';
 
 /* ACTIONS */
 
@@ -32,12 +40,12 @@ class MyActionHandler extends ActionHandler {
         
         if (actor.type !== 'pc') {
           return;
-        }        
-
-        this._getPools(actor,     tokenId, { id: POOLS_ID,     type: 'system' })
-        this._getSkills(actor,    tokenId, { id: SKILLS_ID,    type: 'system' })
-        this._getCombat(actor,    tokenId, { id: COMBAT_ID,    type: 'system' })
+        }
+        this._getPools    (actor, tokenId, { id: POOLS_ID,     type: 'system' })
+        this._getSkills   (actor, tokenId, { id: SKILLS_ID,    type: 'system' })
+        this._getCombat   (actor, tokenId, { id: COMBAT_ID,    type: 'system' })
         this._getAbilities(actor, tokenId, { id: ABILITIES_ID, type: 'system' })
+        this._getTags     (actor, tokenId, { id: TAGS_ID,      type: 'system' })
       
         //if (settings.get("showHudTitle")) result.hudTitle = token.name;
     }
@@ -51,8 +59,7 @@ class MyActionHandler extends ActionHandler {
             actions.push({
                 id: key,
                 name: game.i18n.localize(`CYPHERSYSTEM.${key.capitalize()}`),
-                encodedValue: ["pool", actor.id, tokenId, key.capitalize()].join(this.delimiter),
-                //icon: 
+                encodedValue: [ACTION_POOL, actor.id, tokenId, key.capitalize()].join(this.delimiter),
                 selected: true
             });
         }
@@ -61,7 +68,7 @@ class MyActionHandler extends ActionHandler {
         if (actor.system.settings.general.additionalPool.active) {
             result.push({
                 name: actor.system.settings.general.additionalPool.label || game.i18n.localize(`CYPHERSYSTEM.AdditionalPool`),
-                encodedValue: ["pool", tokenId, "additional"].join(this.delimiter),
+                encodedValue: [ACTION_POOL, tokenId, "additional"].join(this.delimiter),
               });  
         }
         */
@@ -70,25 +77,28 @@ class MyActionHandler extends ActionHandler {
 
     _getCombat(actor, tokenId, parent) {
         // just one long list of actions for the combat category
-        const actions = actor.items.filter( item => item.type === 'attack').map( item => { return {
+        const actions = actor.items.filter( item => item.type === 'attack' &&
+            (!actor.system.settings.general.hideArchive || !item.system.archived)).map( item => { return {
             id: item.name,
             name: item.name,
-            encodedValue: ["attack", actor.id, tokenId, item.id].join(this.delimiter),
-            //icon: ,
+            encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
             selected: true
         }})
         this.addActionsToActionList(actions, parent);
     }
 
-    createList(parent, actor, tokenId, itemtype, sorting, label) {
+    createList(parent, actor, tokenId, itemtype, checksort, sorting, label) {
         // create one sublist
-        let actions = [];
-        for (const item of actor.items.filter( item => item.type === itemtype && item.system.settings.general.sorting === sorting)) {
-            actions.push({
+        const actions = actor.items.filter( item => item.type === itemtype && 
+            (!checksort || item.system.settings.general.sorting === sorting) &&
+            (!actor.system.settings.general.hideArchive || !item.system.archived))
+            .map(item => {
+            return {
                 name: item.name,
                 encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
-            });
-        }
+                selected: false
+            }
+        })
         if (actions.length) {
             const subcat = { id: sorting, name: Utils.i18n(label), type: 'system-derived'};
             this.addSubcategoryToActionList(parent, subcat);
@@ -104,9 +114,8 @@ class MyActionHandler extends ActionHandler {
             SkillThree: actor.system.settings.skills.labelCategory3 || 'CYPHERSYSTEM.SkillCategoryThree',
             SkillFour:  actor.system.settings.skills.labelCategory4 || 'CYPHERSYSTEM.SkillCategoryFour',
         }
-
-        for (const sorting of Object.keys(table)) {
-            this.createList(parent, actor, tokenId, 'skill', sorting, table[sorting])
+        for (const [ sorting, label ] of Object.entries(table)) {
+            this.createList(parent, actor, tokenId, ACTION_SKILL, true, sorting, label)
         }
     }
 
@@ -119,13 +128,17 @@ class MyActionHandler extends ActionHandler {
             AbilityFour:  actor.system.settings.abilities.labelCategory4 || 'CYPHERSYSTEM.AbilityCategoryFour',
             Spell:        'CYPHERSYSTEM.Spells'
         }
-
-        for (const sorting of Object.keys(table)) {
-            this.createList(parent, actor, tokenId, 'ability', sorting, table[sorting]);
+        for (const [ sorting, label ] of Object.entries(table)) {
+            this.createList(parent, actor, tokenId, ACTION_ABILITY, true, sorting, label);
         }
     }
 
+    _getTags(actor, tokenId, parent) {
+        this.createList(parent, actor, tokenId, ACTION_RECURSION, false, 'recursion', 'CYPHERSYSTEM.Recursions');
+        this.createList(parent, actor, tokenId, ACTION_TAG,       false, 'tag',       'CYPHERSYSTEM.Tags');
+    }
 }
+
 
 /* ROLL HANDLER */
 
@@ -146,21 +159,29 @@ class MyRollHandler extends RollHandler {
         let actor = Utils.getActor(actorId, tokenId);
     
         switch (macroType) {
-          case 'pool':
+          case ACTION_POOL:
             // might-roll | speed-roll | intellect-roll
             game.cyphersystem.rollEngineMain({actorUuid: actor.uuid, pool: actionId});
             break;
-          case 'attack':
+          case ACTION_ATTACK:
             // item-roll
             game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", false, "")
             break;
-          case 'skill':
+          case ACTION_SKILL:
             // item-roll
             game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", false, "")
             break;
-          case 'ability':
+          case ACTION_ABILITY:
             // item-pay
             game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", true, "")
+            break;
+          case ACTION_RECURSION:
+            console.log(`Recurse to ${actionId}`)
+            game.cyphersystem.recursionMacro(actor, actor.items.get(actionId));
+            break;
+          case ACTION_TAG:
+            console.log(`Activate tag ${actionId}`)
+            game.cyphersystem.taggingEngineMain(actor, {item: actor.items.get(actionId)});
             break;
         }
     }
@@ -201,6 +222,7 @@ export class MySystemManager extends SystemManager {
         const ABILITIES_NAME = game.i18n.localize('CYPHERSYSTEM.Abilities');
         const POOLS_NAME     = game.i18n.localize('CYPHERSYSTEM.Pool');
         const COMBAT_NAME    = game.i18n.localize('CYPHERSYSTEM.Combat');
+        const TAGS_NAME      = '@'; //game.i18n.localize('CYPHERSYSTEM.Tags');
         
         const DEFAULTS = {
             categories: [
@@ -261,12 +283,27 @@ export class MySystemManager extends SystemManager {
                         }
                     ]
                 },
+                {
+                    nestId: TAGS_ID,
+                    id:     TAGS_ID,
+                    name:   TAGS_NAME,
+                    type:   'system',
+                    subcategories: [
+                        {
+                            nestId: 'tags_tags',
+                            id:     TAGS_ID,
+                            name:   TAGS_NAME,
+                            type:   'system'
+                        }
+                    ]
+                },
             ],
             subcategories: [
                 { id: ABILITIES_ID, name: ABILITIES_NAME, type: 'system', hasDerivedSubcategories: true  },
                 { id: COMBAT_ID,    name: COMBAT_NAME,    type: 'system', hasDerivedSubcategories: false },
                 { id: POOLS_ID,     name: POOLS_NAME,     type: 'system', hasDerivedSubcategories: false },
-                { id: SKILLS_ID,    name: SKILLS_NAME,    type: 'system', hasDerivedSubcategories: true  }
+                { id: SKILLS_ID,    name: SKILLS_NAME,    type: 'system', hasDerivedSubcategories: true  },
+                { id: TAGS_ID,      name: TAGS_NAME,      type: 'system', hasDerivedSubcategories: true  }
             ]
         }
         await Utils.setUserFlag('default', DEFAULTS)
