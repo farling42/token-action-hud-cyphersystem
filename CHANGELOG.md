@@ -4,6 +4,8 @@
 
 - Support showing which recursions and tags are currently checked.
 - Add icons to the buttons using the icon from the underyling item.
+- Manually honour the HUD Core option "Display Icons".
+- Manually honour the HUD Core option "Open Item Sheet on Right-Click".
 
 ## 0.3
 

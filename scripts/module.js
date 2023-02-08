@@ -81,7 +81,7 @@ class MyActionHandler extends ActionHandler {
             id: item.id,
             name: item.name,
             encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
-            img: item.img,
+            img: Utils.getImage(item),
             selected: true,
         }})
         this.addActionsToActionList(actions, parent);
@@ -97,8 +97,8 @@ class MyActionHandler extends ActionHandler {
                 id: item.id,
                 name: item.name,
                 encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
-                cssClass: selectedfunc ? (selectedfunc(item) ? 'toggleactive' : 'toggle') : '',
-                img: item.img,
+                cssClass: selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
+                img: Utils.getImage(item),
                 selected: true,
             }
         })
@@ -165,6 +165,10 @@ class MyRollHandler extends RollHandler {
         let actionId = payload[3];
     
         let actor = Utils.getActor(actorId, tokenId);
+        if (this.isRightClick(event) && actionId) {
+            actor.items.get(actionId)?.sheet.render(true);
+            return;
+        }
     
         switch (macroType) {
           case ACTION_POOL:
@@ -184,10 +188,12 @@ class MyRollHandler extends RollHandler {
             game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", true, "")
             break;
           case ACTION_RECURSION:
+            // transition to a recursion
             game.cyphersystem.recursionMacro(actor, actor.items.get(actionId));
             break;
           case ACTION_TAG:
-            game.cyphersystem.taggingEngineMain(actor, { item: actor.items.get(actionId) } );
+            // toggle the state of a tag
+            game.cyphersystem.tagMacro(actor, actor.items.get(actionId));
             break;
         }
     }
