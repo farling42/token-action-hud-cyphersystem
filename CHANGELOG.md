@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.4
+
+- Support showing which recursions and tags are currently checked.
+- Add icons to the buttons using the icon from the underyling item.
+
 ## 0.3
 
 - Add the Tags ("@") HUD title to support Recursions and Tags.
