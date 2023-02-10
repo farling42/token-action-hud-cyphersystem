@@ -159,16 +159,18 @@ class MyRollHandler extends RollHandler {
           super.throwInvalidValueErr();
         }
     
-        let macroType = payload[0];
-        let actorId = payload[1];
-        let tokenId = payload[2];
-        let actionId = payload[3];
-    
-        let actor = Utils.getActor(actorId, tokenId);
-        if (this.isRightClick(event) && actionId) {
-            actor.items.get(actionId)?.sheet.render(true);
+        const macroType = payload[0];
+        const actorId  = payload[1];
+        const tokenId  = payload[2];
+        const actionId = payload[3];
+
+        if (this.isRenderItem()) {
+            // Nothing to display for action pools
+            if (macroType != ACTION_POOL) this.doRenderItem(actorId, tokenId, actionId)
             return;
         }
+        const actor = Utils.getActor(actorId, tokenId);
+        const item  = (macroType != ACTION_POOL) && Utils.getItem(actor,  actionId);
     
         switch (macroType) {
           case ACTION_POOL:
@@ -189,11 +191,11 @@ class MyRollHandler extends RollHandler {
             break;
           case ACTION_RECURSION:
             // transition to a recursion
-            game.cyphersystem.recursionMacro(actor, actor.items.get(actionId));
+            game.cyphersystem.recursionMacro(actor, item);
             break;
           case ACTION_TAG:
             // toggle the state of a tag
-            game.cyphersystem.tagMacro(actor, actor.items.get(actionId));
+            game.cyphersystem.tagMacro(actor, item);
             break;
         }
     }
@@ -318,18 +320,18 @@ export class MySystemManager extends SystemManager {
                 { id: TAGS_ID,      name: TAGS_NAME,      type: 'system', hasDerivedSubcategories: true  }
             ]
         }
-        await Utils.setUserFlag('default', DEFAULTS)
+
+        // HUD CORE v1.2 wants us to return the DEFAULTS
+        return DEFAULTS;
     }
 }
 
 /* STARTING POINT */
 
 Hooks.once('ready', async () => {
-    const MODULE_ID = 'token-action-hud-cyphersystem';
-    const REQUIRED_CORE_MODULE_VERSION = '1.2'
-    const module = game.modules.get(MODULE_ID);
+    const module = game.modules.get('token-action-hud-cyphersystem');
     module.api = {
-        requiredCoreModuleVersion: REQUIRED_CORE_MODULE_VERSION,
+        requiredCoreModuleVersion: '1.2',
         SystemManager: MySystemManager
     }    
     Hooks.call('tokenActionHudSystemReady', module)

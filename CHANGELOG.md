@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.5
+
+- Use correct method for honouring the HUD Core option 'Open Item Sheet on Right-Click'.
+- Change `doRegisterDefaultFlags` to return the default structure.
+
 ## 0.4.1
 
 - Bump compatible version of HUD Core to 1.2 so that the module will work again.
