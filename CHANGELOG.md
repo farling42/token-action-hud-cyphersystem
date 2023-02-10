@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.4.1
+
+- Bump compatible version of HUD Core to 1.2 so that the module will work again.
+
 ## 0.4
 
 - Support showing which recursions and tags are currently checked.

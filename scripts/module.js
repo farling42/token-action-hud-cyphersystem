@@ -326,7 +326,7 @@ export class MySystemManager extends SystemManager {
 
 Hooks.once('ready', async () => {
     const MODULE_ID = 'token-action-hud-cyphersystem';
-    const REQUIRED_CORE_MODULE_VERSION = '1.1'
+    const REQUIRED_CORE_MODULE_VERSION = '1.2'
     const module = game.modules.get(MODULE_ID);
     module.api = {
         requiredCoreModuleVersion: REQUIRED_CORE_MODULE_VERSION,
