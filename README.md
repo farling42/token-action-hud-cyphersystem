@@ -6,6 +6,7 @@ A plug-in module for the module [Token Action HUD Core](https://foundryvtt.com/p
 
 - The Image of the items can be displayed by selecting 'Display Icons' in the HUD Core settings.
 - Right clicking will open the item's window by selecting 'Open Item Sheet on Right-Click' in the HUD Core settings (right-clicking on a pool name will do nothing).
+- Some users might prefer to enable the 'Click to Open Categories' in the HUD Core Settings, so that hovering over HUD category names doesn't automatically open the sub-menu.
 
 ## Known Issues
 
