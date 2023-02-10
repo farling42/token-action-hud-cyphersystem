@@ -56,8 +56,7 @@ class MyActionHandler extends ActionHandler {
             return {
                 id: key,
                 name: game.i18n.localize(`CYPHERSYSTEM.${key.capitalize()}`),
-                encodedValue: [ACTION_POOL, actor.id, tokenId, key.capitalize()].join(this.delimiter),
-                selected: true,
+                encodedValue: [ACTION_POOL, actor.id, tokenId, key.capitalize()].join(this.delimiter)
             }
         });
         /*
@@ -66,8 +65,7 @@ class MyActionHandler extends ActionHandler {
             actions.push({
                 id: 'additionalPool',
                 name: actor.system.settings.general.additionalPool.label || game.i18n.localize(`CYPHERSYSTEM.AdditionalPool`),
-                encodedValue: [ACTION_POOL, tokenId, "additional"].join(this.delimiter),
-                selected: true,
+                encodedValue: [ACTION_POOL, tokenId, "additional"].join(this.delimiter)
               });  
         }
         */
@@ -81,8 +79,7 @@ class MyActionHandler extends ActionHandler {
             id: item.id,
             name: item.name,
             encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
-            img: Utils.getImage(item),
-            selected: true,
+            img: Utils.getImage(item)
         }})
         this.addActionsToActionList(actions, parent);
     }
@@ -98,8 +95,7 @@ class MyActionHandler extends ActionHandler {
                 name: item.name,
                 encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
                 cssClass: selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
-                img: Utils.getImage(item),
-                selected: true,
+                img: Utils.getImage(item)
             }
         })
         if (actions.length) {
