@@ -8,10 +8,6 @@ A plug-in module for the module [Token Action HUD Core](https://foundryvtt.com/p
 - Right clicking will open the item's window by selecting 'Open Item Sheet on Right-Click' in the HUD Core settings (right-clicking on a pool name will do nothing).
 - Some users might prefer to enable the 'Click to Open Categories' in the HUD Core Settings, so that hovering over HUD category names doesn't automatically open the sub-menu.
 
-## Known Issues
-
-When using the Chrome browser, if you want to use the ALT to change the default behaviour about opening the All-In-One dialog, then you need to hold down ALT before moving the mouse into the button and triggering the button.
-
 ## Installation
 
 It can be installed by searching in Foundry's module installer, or by directly entering the following URL:
