@@ -31,11 +31,16 @@ class MyActionHandler extends ActionHandler {
     }
 
     /** @override */
-    async buildSystemActions(character, subcategoryIds) {
-        const token = character?.token;
+    async buildSystemActions(subcategoryIds) {
+        // We don't support MULTIPLE tokens being selected at the same time.
+        //this.actors = (!this.actor) ? this._getActors() : [this.actor]
+        //this.tokens = (!this.token) ? this._getTokens() : [this.token]
+        //this.actorType = this.actor?.type
+
+        const token = this.token;
         if (!token) return;
         const tokenId = token.id;
-        const actor = character?.actor;
+        const actor = this.actor;
         if (!actor) return;
         
         if (actor.type !== 'pc') {
@@ -324,10 +329,10 @@ export class MySystemManager extends SystemManager {
 
 /* STARTING POINT */
 
-Hooks.once('ready', async () => {
+Hooks.once('tokenActionHudCoreApiReady', async () => {
     const module = game.modules.get('token-action-hud-cyphersystem');
     module.api = {
-        requiredCoreModuleVersion: '1.2',
+        requiredCoreModuleVersion: '1.3',
         SystemManager: MySystemManager
     }    
     Hooks.call('tokenActionHudSystemReady', module)

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.6
+
+- Make changes to become compatible with Token Action HUD Core version 1.3.
+- (Note that selecting multiple tokens will not provide a HUD.)
+
 ## 0.5
 
 - Use correct method for honouring the HUD Core option 'Open Item Sheet on Right-Click'.
