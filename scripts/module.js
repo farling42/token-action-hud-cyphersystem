@@ -42,7 +42,7 @@ class MyActionHandler extends ActionHandler {
         const tokenId = token.id;
         const actor = this.actor;
         if (!actor) return;
-        
+
         if (actor.type !== 'pc') {
           return;
         }
@@ -165,14 +165,13 @@ class MyRollHandler extends RollHandler {
         const tokenId  = payload[2];
         const actionId = payload[3];
 
+        const actor = Utils.getActor(actorId, tokenId);
         if (this.isRenderItem()) {
             // Nothing to display for action pools
-            if (macroType != ACTION_POOL) this.doRenderItem(actorId, tokenId, actionId)
+            if (macroType != ACTION_POOL) this.doRenderItem(actor, actionId)
             return;
         }
-        const actor = Utils.getActor(actorId, tokenId);
-        const item  = (macroType != ACTION_POOL) && Utils.getItem(actor,  actionId);
-    
+            
         switch (macroType) {
           case ACTION_POOL:
             // might-roll | speed-roll | intellect-roll
@@ -192,11 +191,11 @@ class MyRollHandler extends RollHandler {
             break;
           case ACTION_RECURSION:
             // transition to a recursion
-            game.cyphersystem.recursionMacro(actor, item);
+            game.cyphersystem.recursionMacro(actor, Utils.getItem(actor,  actionId));
             break;
           case ACTION_TAG:
             // toggle the state of a tag
-            game.cyphersystem.tagMacro(actor, item);
+            game.cyphersystem.tagMacro(actor, Utils.getItem(actor,  actionId));
             break;
         }
     }
