@@ -336,3 +336,9 @@ Hooks.once('tokenActionHudCoreApiReady', async () => {
     }    
     Hooks.call('tokenActionHudSystemReady', module)
 });
+
+// TODO - call  after the tag/recursion change is complete
+
+Hooks.on('updateActor', async () => {
+    Hooks.callAll('forceUpdateTokenActionHud');
+})

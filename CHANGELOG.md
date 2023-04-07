@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.5.1
+
+- Get right-click working again with HUD Core 1.3
+- Force update of HUD when (de)selecting TAG or RECURSION (it actually updates on any change to the Actor).
+
 ## 0.5
 
 - Make changes to become compatible with Token Action HUD Core version 1.3. (Note that selecting multiple tokens will not provide a HUD.)
