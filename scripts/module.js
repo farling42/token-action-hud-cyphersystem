@@ -191,13 +191,16 @@ class MyRollHandler extends RollHandler {
             break;
           case ACTION_RECURSION:
             // transition to a recursion
-            game.cyphersystem.recursionMacro(actor, Utils.getItem(actor,  actionId));
+            game.cyphersystem.recursionMacro(actor, Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
             break;
           case ACTION_TAG:
             // toggle the state of a tag
-            game.cyphersystem.tagMacro(actor, Utils.getItem(actor,  actionId));
+            game.cyphersystem.tagMacro(actor, Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
             break;
         }
+
+        // Ensure the HUD reflects the new conditions
+        Hooks.callAll('forceUpdateTokenActionHud');
     }
 }
 
@@ -336,9 +339,3 @@ Hooks.once('tokenActionHudCoreApiReady', async () => {
     }    
     Hooks.call('tokenActionHudSystemReady', module)
 });
-
-// TODO - call  after the tag/recursion change is complete
-
-Hooks.on('updateActor', async () => {
-    Hooks.callAll('forceUpdateTokenActionHud');
-})
