@@ -99,7 +99,7 @@ class MyActionHandler extends ActionHandler {
                 id: item.id,
                 name: item.name,
                 encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
-                cssClass: selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
+                cssClass: item.system.archived ? 'disabled' : selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
                 img: Utils.getImage(item)
             }
         })
