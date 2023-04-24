@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.5.2
+
+- Prevent endless loop of actor updates when GM and player select the same token.
+- If 'Hide Archive' is not selected on the Actor, then any archived entries in the HUD will be shown in disabled state.
+
 ## 0.5.1
 
 - Get right-click working again with HUD Core 1.3
