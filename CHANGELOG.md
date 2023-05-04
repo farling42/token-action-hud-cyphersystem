@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.4.0
+
+- Ensure compatibility with HUD Core 1.4.0
+- Naming convention of this module has changed to try and align with the compatible HUD-Core version.
+
 ## 0.5.2
 
 - Prevent endless loop of actor updates when GM and player select the same token.

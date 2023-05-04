@@ -1,10 +1,9 @@
 // FOR LIVE
-import { ActionHandler, CategoryManager, RollHandler, SystemManager, Utils } from '../../token-action-hud-core/scripts/token-action-hud-core.min.js'
+import { ActionHandler, RollHandler, SystemManager, Utils } from '../../token-action-hud-core/scripts/token-action-hud-core.min.js'
 
 // For DEBUGGING
 /*
 import { ActionHandler   } from '../../token-action-hud-core/scripts/action-handlers/action-handler.js'
-import { CategoryManager } from '../../token-action-hud-core/scripts/category-manager.js'
 import { RollHandler     } from '../../token-action-hud-core/scripts/roll-handlers/roll-handler.js'
 import { SystemManager   } from '../../token-action-hud-core/scripts/system-manager.js'
 import { Utils           } from '../../token-action-hud-core/scripts/utilities/utils.js'
@@ -26,9 +25,6 @@ const ACTION_TAG       = 'tag';
 /* ACTIONS */
 
 class MyActionHandler extends ActionHandler {
-    constructor(categoryManager) {
-        super(categoryManager);
-    }
 
     /** @override */
     async buildSystemActions(subcategoryIds) {
@@ -74,7 +70,7 @@ class MyActionHandler extends ActionHandler {
               });  
         }
         */
-        this.addActionsToActionList(actions, parent);
+        this.addActions(actions, parent);
     }
 
     _getCombat(actor, tokenId, parent) {
@@ -86,7 +82,7 @@ class MyActionHandler extends ActionHandler {
             encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
             img: Utils.getImage(item)
         }})
-        this.addActionsToActionList(actions, parent);
+        this.addActions(actions, parent);
     }
 
     createList(parent, actor, tokenId, itemtype, checksort, sorting, label, selectedfunc=undefined) {
@@ -105,8 +101,8 @@ class MyActionHandler extends ActionHandler {
         })
         if (actions.length) {
             const subcat = { id: sorting, name: Utils.i18n(label), type: 'system-derived'};
-            this.addSubcategoryToActionList(parent, subcat);
-            this.addActionsToActionList(actions, subcat);
+            this.addGroup(subcat, parent);
+            this.addActions(actions, subcat);
         }
     }
 
@@ -208,11 +204,6 @@ class MyRollHandler extends RollHandler {
 
 export class MySystemManager extends SystemManager {
     /** @override */
-    doGetCategoryManager () {
-        return new CategoryManager()
-    }
-
-    /** @override */
     doGetActionHandler (categoryManager) {
         return new MyActionHandler(categoryManager)
     }
@@ -242,19 +233,18 @@ export class MySystemManager extends SystemManager {
         const TAGS_NAME      = '@'; //game.i18n.localize('CYPHERSYSTEM.Tags');
         
         const DEFAULTS = {
-            categories: [
+            layout: [
                 {
                     nestId: POOLS_ID,
                     id:     POOLS_ID,
                     name:   POOLS_NAME,
                     type:   'system',
-                    subcategories: [
+                    groups: [
                         {
                             nestId: 'pools_pools',
                             id:     POOLS_ID,
                             name:   POOLS_NAME,
-                            type:   'system',
-                            hasDerivedSubcategories: false
+                            type:   'system'
                         }
                     ]
                 },
@@ -263,7 +253,7 @@ export class MySystemManager extends SystemManager {
                     id:     SKILLS_ID,
                     name:   SKILLS_NAME,
                     type:   'system',
-                    subcategories: [
+                    groups: [
                         {
                             nestId: 'skills_skills',
                             id:     SKILLS_ID,
@@ -277,7 +267,7 @@ export class MySystemManager extends SystemManager {
                     id:     COMBAT_ID,
                     name:   COMBAT_NAME,
                     type:   'system',
-                    subcategories: [
+                    groups: [
                         {
                             nestId: 'combat_combat',
                             id:     COMBAT_ID,
@@ -291,7 +281,7 @@ export class MySystemManager extends SystemManager {
                     id:     ABILITIES_ID,
                     name:   ABILITIES_NAME,
                     type:   'system',
-                    subcategories: [
+                    groups: [
                         {
                             nestId: 'abilities_abilities',
                             id:     ABILITIES_ID,
@@ -305,7 +295,7 @@ export class MySystemManager extends SystemManager {
                     id:     TAGS_ID,
                     name:   TAGS_NAME,
                     type:   'system',
-                    subcategories: [
+                    groups: [
                         {
                             nestId: 'tags_tags',
                             id:     TAGS_ID,
@@ -315,12 +305,12 @@ export class MySystemManager extends SystemManager {
                     ]
                 },
             ],
-            subcategories: [
-                { id: ABILITIES_ID, name: ABILITIES_NAME, type: 'system', hasDerivedSubcategories: true  },
-                { id: COMBAT_ID,    name: COMBAT_NAME,    type: 'system', hasDerivedSubcategories: false },
-                { id: POOLS_ID,     name: POOLS_NAME,     type: 'system', hasDerivedSubcategories: false },
-                { id: SKILLS_ID,    name: SKILLS_NAME,    type: 'system', hasDerivedSubcategories: true  },
-                { id: TAGS_ID,      name: TAGS_NAME,      type: 'system', hasDerivedSubcategories: true  }
+            groups: [
+                { id: ABILITIES_ID, name: ABILITIES_NAME, type: 'system' },
+                { id: COMBAT_ID,    name: COMBAT_NAME,    type: 'system' },
+                { id: POOLS_ID,     name: POOLS_NAME,     type: 'system' },
+                { id: SKILLS_ID,    name: SKILLS_NAME,    type: 'system' },
+                { id: TAGS_ID,      name: TAGS_NAME,      type: 'system' }
             ]
         }
 
@@ -334,7 +324,7 @@ export class MySystemManager extends SystemManager {
 Hooks.once('tokenActionHudCoreApiReady', async () => {
     const module = game.modules.get('token-action-hud-cyphersystem');
     module.api = {
-        requiredCoreModuleVersion: '1.3',
+        requiredCoreModuleVersion: '1.4',
         SystemManager: MySystemManager
     }    
     Hooks.call('tokenActionHudSystemReady', module)
