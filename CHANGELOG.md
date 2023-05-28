@@ -1,4 +1,7 @@
 # CHANGELOG
+## 1.4.1
+
+- Mark compatible with Foundry 11 (299)
 
 ## 1.4.0
 
