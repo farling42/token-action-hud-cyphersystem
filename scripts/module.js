@@ -54,10 +54,12 @@ class MyActionHandler extends ActionHandler {
     _getPools(actor, tokenId, parent) {
         // three entries in this list, one per pool.
         let actions = [ "might", "speed", "intellect" ].map( key => {
+            const pool = actor.system.pools[key];
             return {
                 id: key,
                 name: game.i18n.localize(`CYPHERSYSTEM.${key.capitalize()}`),
-                encodedValue: [ACTION_POOL, actor.id, tokenId, key.capitalize()].join(this.delimiter)
+                encodedValue: [ACTION_POOL, actor.id, tokenId, key.capitalize()].join(this.delimiter),
+                tooltip: `<p>${pool.value} / ${pool.max} (${pool.edge})</p>`
             }
         });
         /*
@@ -80,7 +82,8 @@ class MyActionHandler extends ActionHandler {
             id: item.id,
             name: item.name,
             encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
-            img: Utils.getImage(item)
+            img: Utils.getImage(item),
+            tooltip: item.system.description
         }})
         this.addActions(actions, parent);
     }
@@ -96,7 +99,8 @@ class MyActionHandler extends ActionHandler {
                 name: item.name,
                 encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
                 cssClass: item.system.archived ? 'disabled' : selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
-                img: Utils.getImage(item)
+                img: Utils.getImage(item),
+                tooltip: item.system.description
             }
         })
         if (actions.length) {
