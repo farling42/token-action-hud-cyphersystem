@@ -1,4 +1,12 @@
 # CHANGELOG
+
+## 1.5.0
+
+- Add tooltips:
+
+- Pools show "current / maximum (edge)"
+- Skills and Abilities show the item's description
+
 ## 1.4.1
 
 - Mark compatible with Foundry 11 (299)
