@@ -37,8 +37,8 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.4",
-            "verified": "1.4",
+            "minimum": "1.4.17",
+            "verified": "1.4.18",
             "maximum": "1.4"
           }
         ]

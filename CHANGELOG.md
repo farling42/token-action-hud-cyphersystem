@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.6.0
+
+- Ensure compatibility with Token-Action-Hude Core version 1.4.17 and later.
+
 ## 1.5.0
 
 - Add tooltips:

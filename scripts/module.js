@@ -1,14 +1,3 @@
-// FOR LIVE
-import { ActionHandler, RollHandler, SystemManager, Utils } from '../../token-action-hud-core/scripts/token-action-hud-core.min.js'
-
-// For DEBUGGING
-/*
-import { ActionHandler   } from '../../token-action-hud-core/scripts/action-handlers/action-handler.js'
-import { RollHandler     } from '../../token-action-hud-core/scripts/roll-handlers/roll-handler.js'
-import { SystemManager   } from '../../token-action-hud-core/scripts/system-manager.js'
-import { Utils           } from '../../token-action-hud-core/scripts/utilities/utils.js'
-*/
-
 const SKILLS_ID    = 'skills';
 const POOLS_ID     = 'pools';
 const ABILITIES_ID = 'abilities';
@@ -24,7 +13,9 @@ const ACTION_TAG       = 'tag';
 
 /* ACTIONS */
 
-class MyActionHandler extends ActionHandler {
+Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+
+class MyActionHandler extends coreModule.api.ActionHandler {
 
     /** @override */
     async buildSystemActions(subcategoryIds) {
@@ -82,7 +73,7 @@ class MyActionHandler extends ActionHandler {
             id: item.id,
             name: item.name,
             encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
-            img: Utils.getImage(item),
+            img: coreModule.api.Utils.getImage(item),
             tooltip: item.system.description
         }})
         this.addActions(actions, parent);
@@ -99,12 +90,12 @@ class MyActionHandler extends ActionHandler {
                 name: item.name,
                 encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
                 cssClass: item.system.archived ? 'disabled' : selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
-                img: Utils.getImage(item),
+                img: coreModule.api.Utils.getImage(item),
                 tooltip: item.system.description
             }
         })
         if (actions.length) {
-            const subcat = { id: sorting, name: Utils.i18n(label), type: 'system-derived'};
+            const subcat = { id: sorting, name: coreModule.api.Utils.i18n(label), type: 'system-derived'};
             this.addGroup(subcat, parent);
             this.addActions(actions, subcat);
         }
@@ -151,7 +142,7 @@ class MyActionHandler extends ActionHandler {
 
 /* ROLL HANDLER */
 
-class MyRollHandler extends RollHandler {
+class MyRollHandler extends coreModule.api.RollHandler {
 
     doHandleActionEvent(event, encodedValue) {
         let payload = encodedValue.split("|");
@@ -165,7 +156,7 @@ class MyRollHandler extends RollHandler {
         const tokenId  = payload[2];
         const actionId = payload[3];
 
-        const actor = Utils.getActor(actorId, tokenId);
+        const actor = coreModule.api.Utils.getActor(actorId, tokenId);
         if (this.isRenderItem()) {
             // Nothing to display for action pools
             if (macroType != ACTION_POOL) this.doRenderItem(actor, actionId)
@@ -191,11 +182,11 @@ class MyRollHandler extends RollHandler {
             break;
           case ACTION_RECURSION:
             // transition to a recursion
-            game.cyphersystem.recursionMacro(actor, Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
+            game.cyphersystem.recursionMacro(actor, coreModule.api.Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
             break;
           case ACTION_TAG:
             // toggle the state of a tag
-            game.cyphersystem.tagMacro(actor, Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
+            game.cyphersystem.tagMacro(actor, coreModule.api.Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
             break;
         }
 
@@ -206,7 +197,7 @@ class MyRollHandler extends RollHandler {
 
 // Core Module Imports
 
-export class MySystemManager extends SystemManager {
+class MySystemManager extends coreModule.api.SystemManager {
     /** @override */
     doGetActionHandler (categoryManager) {
         return new MyActionHandler(categoryManager)
@@ -325,11 +316,10 @@ export class MySystemManager extends SystemManager {
 
 /* STARTING POINT */
 
-Hooks.once('tokenActionHudCoreApiReady', async () => {
     const module = game.modules.get('token-action-hud-cyphersystem');
     module.api = {
         requiredCoreModuleVersion: '1.4',
-        SystemManager: MySystemManager
+        SystemManager : MySystemManager
     }    
     Hooks.call('tokenActionHudSystemReady', module)
 });
