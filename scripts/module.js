@@ -69,13 +69,15 @@ class MyActionHandler extends coreModule.api.ActionHandler {
     _getCombat(actor, tokenId, parent) {
         // just one long list of actions for the combat category
         const actions = actor.items.filter( item => item.type === 'attack' &&
-            (!actor.system.settings.general.hideArchive || !item.system.archived)).map( item => { return {
-            id: item.id,
-            name: item.name,
-            encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
-            img: coreModule.api.Utils.getImage(item),
-            tooltip: item.system.description
-        }})
+            (!actor.system.settings.general.hideArchive || !item.system.archived)).map( item => { 
+            return {
+                id: item.id,
+                name: item.name,
+                encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
+                img: coreModule.api.Utils.getImage(item),
+                tooltip: item.system.description
+            }
+        })
         this.addActions(actions, parent);
     }
 
@@ -95,7 +97,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             }
         })
         if (actions.length) {
-            const subcat = { id: sorting, name: coreModule.api.Utils.i18n(label), type: 'system-derived'};
+            const subcat = { id: `${parent.id}-${sorting}`, name: coreModule.api.Utils.i18n(label), type: 'system-derived'};
             this.addGroup(subcat, parent);
             this.addActions(actions, subcat);
         }
@@ -230,13 +232,13 @@ class MySystemManager extends coreModule.api.SystemManager {
         const DEFAULTS = {
             layout: [
                 {
-                    nestId: POOLS_ID,
-                    id:     POOLS_ID,
+                    nestId: POOLS_ID + "-title",
+                    id:     POOLS_ID + "-title",
                     name:   POOLS_NAME,
                     type:   'system',
                     groups: [
                         {
-                            nestId: 'pools_pools',
+                            nestId: 'pools-title_pools',
                             id:     POOLS_ID,
                             name:   POOLS_NAME,
                             type:   'system'
@@ -244,13 +246,13 @@ class MySystemManager extends coreModule.api.SystemManager {
                     ]
                 },
                 {
-                    nestId: SKILLS_ID,
-                    id:     SKILLS_ID,
+                    nestId: SKILLS_ID + "-title",
+                    id:     SKILLS_ID + "-title",
                     name:   SKILLS_NAME,
                     type:   'system',
                     groups: [
                         {
-                            nestId: 'skills_skills',
+                            nestId: 'skills-title_skills',
                             id:     SKILLS_ID,
                             name:   SKILLS_NAME,
                             type:   'system'
@@ -258,13 +260,13 @@ class MySystemManager extends coreModule.api.SystemManager {
                     ]
                 },
                 {
-                    nestId: COMBAT_ID,
-                    id:     COMBAT_ID,
+                    nestId: COMBAT_ID + "-title",
+                    id:     COMBAT_ID + "-title",
                     name:   COMBAT_NAME,
                     type:   'system',
                     groups: [
                         {
-                            nestId: 'combat_combat',
+                            nestId: 'combat-title_combat',
                             id:     COMBAT_ID,
                             name:   COMBAT_NAME,
                             type: 'system'
@@ -272,13 +274,13 @@ class MySystemManager extends coreModule.api.SystemManager {
                     ]
                 },
                 {
-                    nestId: ABILITIES_ID,
-                    id:     ABILITIES_ID,
+                    nestId: ABILITIES_ID + "-title",
+                    id:     ABILITIES_ID + "-title",
                     name:   ABILITIES_NAME,
                     type:   'system',
                     groups: [
                         {
-                            nestId: 'abilities_abilities',
+                            nestId: 'abilities-title_abilities',
                             id:     ABILITIES_ID,
                             name:   ABILITIES_NAME,
                             type:   'system'
@@ -286,13 +288,13 @@ class MySystemManager extends coreModule.api.SystemManager {
                     ]
                 },
                 {
-                    nestId: TAGS_ID,
-                    id:     TAGS_ID,
+                    nestId: TAGS_ID + "-title",
+                    id:     TAGS_ID + "-title",
                     name:   TAGS_NAME,
                     type:   'system',
                     groups: [
                         {
-                            nestId: 'tags_tags',
+                            nestId: 'tags-title_tags',
                             id:     TAGS_ID,
                             name:   TAGS_NAME,
                             type:   'system'
