@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.6.1
+
+- Change the 'nestId' values so that it works on Foundry 11 correctly.
+
 ## 1.6.0
 
 - Ensure compatibility with Token-Action-Hude Core version 1.4.17 and later.
