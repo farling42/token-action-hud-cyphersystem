@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.7.0
+
+- Make compatible with Token Action HUD Core v1.5.x
+
 ## 1.6.1
 
 - Change the 'nestId' values so that it works on Foundry 11 correctly.

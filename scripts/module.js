@@ -11,6 +11,10 @@ const ACTION_ATTACK    = 'attack';
 const ACTION_RECURSION = 'recursion';
 const ACTION_TAG       = 'tag';
 
+// Information from module.json
+const MODULE_ID = "token-action-hud-cyphersystem"   // from module.json
+const REQUIRED_CORE_MODULE_VERSION = "1.5";
+
 /* ACTIONS */
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
@@ -18,7 +22,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 class MyActionHandler extends coreModule.api.ActionHandler {
 
     /** @override */
-    async buildSystemActions(subcategoryIds) {
+    async buildSystemActions(groupIds) {
         // We don't support MULTIPLE tokens being selected at the same time.
         //this.actors = (!this.actor) ? this._getActors() : [this.actor]
         //this.tokens = (!this.token) ? this._getTokens() : [this.token]
@@ -33,16 +37,16 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         if (actor.type !== 'pc') {
           return;
         }
-        this._getPools    (actor, tokenId, { id: POOLS_ID,     type: 'system' })
-        this._getSkills   (actor, tokenId, { id: SKILLS_ID,    type: 'system' })
-        this._getCombat   (actor, tokenId, { id: COMBAT_ID,    type: 'system' })
-        this._getAbilities(actor, tokenId, { id: ABILITIES_ID, type: 'system' })
-        this._getTags     (actor, tokenId, { id: TAGS_ID,      type: 'system' })
+        this.#getPools    (actor, tokenId, { id: POOLS_ID,     type: 'system' })
+        this.#getSkills   (actor, tokenId, { id: SKILLS_ID,    type: 'system' })
+        this.#getCombat   (actor, tokenId, { id: COMBAT_ID,    type: 'system' })
+        this.#getAbilities(actor, tokenId, { id: ABILITIES_ID, type: 'system' })
+        this.#getTags     (actor, tokenId, { id: TAGS_ID,      type: 'system' })
       
         //if (settings.get("showHudTitle")) result.hudTitle = token.name;
     }
 
-    _getPools(actor, tokenId, parent) {
+    #getPools(actor, tokenId, parent) {
         // three entries in this list, one per pool.
         let actions = [ "might", "speed", "intellect" ].map( key => {
             const pool = actor.system.pools[key];
@@ -66,7 +70,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         this.addActions(actions, parent);
     }
 
-    _getCombat(actor, tokenId, parent) {
+    #getCombat(actor, tokenId, parent) {
         // just one long list of actions for the combat category
         const actions = actor.items.filter( item => item.type === 'attack' &&
             (!actor.system.settings.general.hideArchive || !item.system.archived)).map( item => { 
@@ -81,7 +85,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         this.addActions(actions, parent);
     }
 
-    createList(parent, actor, tokenId, itemtype, checksort, sorting, label, selectedfunc=undefined) {
+    #createList(parent, actor, tokenId, itemtype, checksort, sorting, label, selectedfunc=undefined) {
         // create one sublist
         const actions = actor.items.filter( item => item.type === itemtype && 
             (!checksort || item.system.settings.general.sorting === sorting) &&
@@ -103,7 +107,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         }
     }
 
-    _getSkills(actor, tokenId, parent) {
+    #getSkills(actor, tokenId, parent) {
         // up to four groups of skills
         const table = {
             Skill:      actor.system.settings.skills.labelCategory1 || 'CYPHERSYSTEM.Skills',
@@ -112,11 +116,11 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             SkillFour:  actor.system.settings.skills.labelCategory4 || 'CYPHERSYSTEM.SkillCategoryFour',
         }
         for (const [ sorting, label ] of Object.entries(table)) {
-            this.createList(parent, actor, tokenId, ACTION_SKILL, true, sorting, label)
+            this.#createList(parent, actor, tokenId, ACTION_SKILL, true, sorting, label)
         }
     }
 
-    _getAbilities(actor, tokenId, parent) {
+    #getAbilities(actor, tokenId, parent) {
         // up to four groups of abilities
         const table = {
             Ability:      actor.system.settings.abilities.labelCategory1 || 'CYPHERSYSTEM.Abilities',
@@ -126,37 +130,34 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             Spell:        'CYPHERSYSTEM.Spells'
         }
         for (const [ sorting, label ] of Object.entries(table)) {
-            this.createList(parent, actor, tokenId, ACTION_ABILITY, true, sorting, label);
+            this.#createList(parent, actor, tokenId, ACTION_ABILITY, true, sorting, label);
         }
     }
 
-    _getTags(actor, tokenId, parent) {
+    #getTags(actor, tokenId, parent) {
         // current recursion is from actor.getFlag("cyphersystem", "recursion"), but the stored string is @<lowercasenanme>
         const recursion = actor.getFlag("cyphersystem", "recursion")?.slice(1); // strip leading '@'
         const recursionname = actor.items.find(item => item.name.toLowerCase() === recursion)?.name;
-        this.createList(parent, actor, tokenId, ACTION_RECURSION, false, 'recursion', 'CYPHERSYSTEM.Recursions', 
+        this.#createList(parent, actor, tokenId, ACTION_RECURSION, false, 'recursion', 'CYPHERSYSTEM.Recursions', 
             (item) => item.name == recursionname );
-        this.createList(parent, actor, tokenId, ACTION_TAG, false, 'tag', 'CYPHERSYSTEM.Tags',
+        this.#createList(parent, actor, tokenId, ACTION_TAG, false, 'tag', 'CYPHERSYSTEM.Tags',
             (item) => item.system.active );
     }
-}
+} // MyActionHandler
 
 
 /* ROLL HANDLER */
 
 class MyRollHandler extends coreModule.api.RollHandler {
 
-    doHandleActionEvent(event, encodedValue) {
+    async handleActionClick(event, encodedValue) {
         let payload = encodedValue.split("|");
     
         if (payload.length != 4) {
           super.throwInvalidValueErr();
         }
     
-        const macroType = payload[0];
-        const actorId  = payload[1];
-        const tokenId  = payload[2];
-        const actionId = payload[3];
+        const [macroType, actorId, tokenId, actionId] = payload;
 
         const actor = coreModule.api.Utils.getActor(actorId, tokenId);
         if (this.isRenderItem()) {
@@ -184,24 +185,25 @@ class MyRollHandler extends coreModule.api.RollHandler {
             break;
           case ACTION_RECURSION:
             // transition to a recursion
-            game.cyphersystem.recursionMacro(actor, coreModule.api.Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
+            await game.cyphersystem.recursionMacro(actor, coreModule.api.Utils.getItem(actor,  actionId))
             break;
           case ACTION_TAG:
             // toggle the state of a tag
-            game.cyphersystem.tagMacro(actor, coreModule.api.Utils.getItem(actor,  actionId)).then(() => Hooks.callAll('forceUpdateTokenActionHud'))
+            await game.cyphersystem.tagMacro(actor, coreModule.api.Utils.getItem(actor,  actionId))
             break;
         }
 
         // Ensure the HUD reflects the new conditions
         Hooks.callAll('forceUpdateTokenActionHud');
     }
-}
+} // MyRollHandler
+
 
 // Core Module Imports
 
 class MySystemManager extends coreModule.api.SystemManager {
     /** @override */
-    doGetActionHandler (categoryManager) {
+    getActionHandler (categoryManager) {
         return new MyActionHandler(categoryManager)
     }
 
@@ -212,16 +214,16 @@ class MySystemManager extends coreModule.api.SystemManager {
     }
 
     /** @override */
-    doGetRollHandler (handlerId) {
+    getRollHandler (handlerId) {
         return new MyRollHandler()
     }
 
     /** @override */
-    /*doRegisterSettings (updateFunc) {
-        systemSettings.register(updateFunc)
+    /*registerSettings (onChangeFunction) {
+        systemSettings.register(onChangeFunction)
     }*/
 
-    async doRegisterDefaultFlags () {
+    async registerDefaults () {
 
         const SKILLS_NAME    = game.i18n.localize('CYPHERSYSTEM.Skills');
         const ABILITIES_NAME = game.i18n.localize('CYPHERSYSTEM.Abilities');
@@ -314,13 +316,13 @@ class MySystemManager extends coreModule.api.SystemManager {
         // HUD CORE v1.2 wants us to return the DEFAULTS
         return DEFAULTS;
     }
-}
+} // MySystemManager
 
 /* STARTING POINT */
 
-    const module = game.modules.get('token-action-hud-cyphersystem');
+    const module = game.modules.get(MODULE_ID);
     module.api = {
-        requiredCoreModuleVersion: '1.4',
+        requiredCoreModuleVersion: REQUIRED_CORE_MODULE_VERSION,
         SystemManager : MySystemManager
     }    
     Hooks.call('tokenActionHudSystemReady', module)
