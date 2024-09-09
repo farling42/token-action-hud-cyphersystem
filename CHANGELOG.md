@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.7.1
+
+- Mark as compatible with Cyphersystem 3.1.0 and Foundry V12
+
 ## 1.7.0
 
 - Make compatible with Token Action HUD Core v1.5.x
