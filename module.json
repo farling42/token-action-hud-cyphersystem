@@ -4,7 +4,7 @@
   "description": "Provide support for the cyphersystem game system with Token Action HUD Core",
   "version": "This is auto replaced",
   "compatibility": {
-    "minimum": 10,
+    "minimum": "12.331",
     "verified": "12.331"
   },
   "authors": [
@@ -26,7 +26,7 @@
         "compatibility": [
           {
             "minimum": "2.6.0",
-            "verified": "3.1.0"
+            "verified": "3.2.1"
           }
         ]
       }
@@ -37,9 +37,8 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.5.0",
-            "verified": "1.5.1",
-            "maximum": "1.5"
+            "minimum": "2.0.3",
+            "verified": "2.0.3"
           }
         ]
       }

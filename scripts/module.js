@@ -13,7 +13,7 @@ const ACTION_TAG       = 'tag';
 
 // Information from module.json
 const MODULE_ID = "token-action-hud-cyphersystem"   // from module.json
-const REQUIRED_CORE_MODULE_VERSION = "1.5";
+const REQUIRED_CORE_MODULE_VERSION = "2.0";
 
 /* ACTIONS */
 
@@ -151,7 +151,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
 class MyRollHandler extends coreModule.api.RollHandler {
 
     async handleActionClick(event, encodedValue) {
-        let payload = encodedValue.split("|");
+        let payload = encodedValue.split(this.delimiter);
     
         if (payload.length != 4) {
           super.throwInvalidValueErr();
