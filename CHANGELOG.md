@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2.0.1
+
+- Make compatible with Token HUD Core 2.0.3
+- (Note that there is a bug in HUD Core 2.0.3 which generates an error in the console, but the selected action has completed.)
+
 ## 1.7.1
 
 - Mark as compatible with Cyphersystem 3.1.0 and Foundry V12
