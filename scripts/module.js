@@ -13,7 +13,7 @@ const ACTION_TAG       = 'tag';
 
 // Information from module.json
 const MODULE_ID = "token-action-hud-cyphersystem"   // from module.json
-const REQUIRED_CORE_MODULE_VERSION = "2.0";
+const REQUIRED_CORE_MODULE_VERSION = "2";
 
 /* ACTIONS */
 
