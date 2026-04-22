@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.1.0
+- Update to be compatible with Token Action HUD Core 2.1.x
+- Update logic to support newer functions in 2.1.x
+
 ## 2.0.1
 
 - Make compatible with Token HUD Core 2.0.3
