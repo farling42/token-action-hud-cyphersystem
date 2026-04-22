@@ -162,7 +162,7 @@ class MyRollHandler extends coreModule.api.RollHandler {
         const actor = coreModule.api.Utils.getActor(actorId, tokenId);
         if (this.isRenderItem()) {
             // Nothing to display for action pools
-            if (macroType != ACTION_POOL) this.doRenderItem(actor, actionId)
+            if (macroType != ACTION_POOL) this.renderItem(actor, actionId)
             return;
         }
             
