@@ -28,32 +28,25 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         //this.tokens = (!this.token) ? this._getTokens() : [this.token]
         //this.actorType = this.actor?.type
 
-        const token = this.token;
-        if (!token) return;
-        const tokenId = token.id;
-        const actor = this.actor;
-        if (!actor) return;
+        if (this.actor?.type !== 'pc') return;
 
-        if (actor.type !== 'pc') {
-          return;
-        }
-        this.#getPools    (actor, tokenId, { id: POOLS_ID,     type: 'system' })
-        this.#getSkills   (actor, tokenId, { id: SKILLS_ID,    type: 'system' })
-        this.#getCombat   (actor, tokenId, { id: COMBAT_ID,    type: 'system' })
-        this.#getAbilities(actor, tokenId, { id: ABILITIES_ID, type: 'system' })
-        this.#getTags     (actor, tokenId, { id: TAGS_ID,      type: 'system' })
+        this.#getPools    (this.actor, { id: POOLS_ID,     type: 'system' })
+        this.#getSkills   (this.actor, { id: SKILLS_ID,    type: 'system' })
+        this.#getCombat   (this.actor, { id: COMBAT_ID,    type: 'system' })
+        this.#getAbilities(this.actor, { id: ABILITIES_ID, type: 'system' })
+        this.#getTags     (this.actor, { id: TAGS_ID,      type: 'system' })
       
         //if (settings.get("showHudTitle")) result.hudTitle = token.name;
     }
 
-    #getPools(actor, tokenId, parent) {
+    #getPools(actor, parent) {
         // three entries in this list, one per pool.
         let actions = [ "might", "speed", "intellect" ].map( key => {
             const pool = actor.system.pools[key];
             return {
                 id: key,
                 name: game.i18n.localize(`CYPHERSYSTEM.${key.capitalize()}`),
-                encodedValue: [ACTION_POOL, actor.id, tokenId, key.capitalize()].join(this.delimiter),
+                system: { actionId: ACTION_POOL, poolId: key.capitalize() },
                 tooltip: `<p>${pool.value} / ${pool.max} (${pool.edge})</p>`
             }
         });
@@ -63,21 +56,21 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             actions.push({
                 id: 'additionalPool',
                 name: actor.system.settings.general.additionalPool.label || game.i18n.localize(`CYPHERSYSTEM.AdditionalPool`),
-                encodedValue: [ACTION_POOL, tokenId, "additional"].join(this.delimiter)
+                system: { actionId: ACTION_POOL, poolId: "additional" },
               });  
         }
         */
         this.addActions(actions, parent);
     }
 
-    #getCombat(actor, tokenId, parent) {
+    #getCombat(actor, parent) {
         // just one long list of actions for the combat category
         const actions = actor.items.filter( item => item.type === 'attack' &&
             (!actor.system.settings.general.hideArchive || !item.system.archived)).map( item => { 
             return {
                 id: item.id,
                 name: item.name,
-                encodedValue: [ACTION_ATTACK, actor.id, tokenId, item.id].join(this.delimiter),
+                system: { actionId: ACTION_ATTACK, itemId: item.id },
                 img: coreModule.api.Utils.getImage(item),
                 tooltip: item.system.description
             }
@@ -85,7 +78,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         this.addActions(actions, parent);
     }
 
-    #createList(parent, actor, tokenId, itemtype, checksort, sorting, label, selectedfunc=undefined) {
+    #createList(parent, actor, itemtype, checksort, sorting, label, selectedfunc=undefined) {
         // create one sublist
         const actions = actor.items.filter( item => item.type === itemtype && 
             (!checksort || item.system.settings.general.sorting === sorting) &&
@@ -94,7 +87,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             return {
                 id: item.id,
                 name: item.name,
-                encodedValue: [itemtype, actor.id, tokenId, item.id].join(this.delimiter),
+                system: { actionId: itemtype, itemId: item.id },
                 cssClass: item.system.archived ? 'disabled' : selectedfunc ? (selectedfunc(item) ? 'toggle active' : 'toggle') : '',
                 img: coreModule.api.Utils.getImage(item),
                 tooltip: item.system.description
@@ -107,7 +100,7 @@ class MyActionHandler extends coreModule.api.ActionHandler {
         }
     }
 
-    #getSkills(actor, tokenId, parent) {
+    #getSkills(actor, parent) {
         // up to four groups of skills
         const table = {
             Skill:      actor.system.settings.skills.labelCategory1 || 'CYPHERSYSTEM.Skills',
@@ -116,11 +109,11 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             SkillFour:  actor.system.settings.skills.labelCategory4 || 'CYPHERSYSTEM.SkillCategoryFour',
         }
         for (const [ sorting, label ] of Object.entries(table)) {
-            this.#createList(parent, actor, tokenId, ACTION_SKILL, true, sorting, label)
+            this.#createList(parent, actor, ACTION_SKILL, true, sorting, label)
         }
     }
 
-    #getAbilities(actor, tokenId, parent) {
+    #getAbilities(actor, parent) {
         // up to four groups of abilities
         const table = {
             Ability:      actor.system.settings.abilities.labelCategory1 || 'CYPHERSYSTEM.Abilities',
@@ -130,17 +123,17 @@ class MyActionHandler extends coreModule.api.ActionHandler {
             Spell:        'CYPHERSYSTEM.Spells'
         }
         for (const [ sorting, label ] of Object.entries(table)) {
-            this.#createList(parent, actor, tokenId, ACTION_ABILITY, true, sorting, label);
+            this.#createList(parent, actor, ACTION_ABILITY, true, sorting, label);
         }
     }
 
-    #getTags(actor, tokenId, parent) {
+    #getTags(actor, parent) {
         // current recursion is from actor.getFlag("cyphersystem", "recursion"), but the stored string is @<lowercasenanme>
         const recursion = actor.getFlag("cyphersystem", "recursion")?.slice(1); // strip leading '@'
         const recursionname = actor.items.find(item => item.name.toLowerCase() === recursion)?.name;
-        this.#createList(parent, actor, tokenId, ACTION_RECURSION, false, 'recursion', 'CYPHERSYSTEM.Recursions', 
+        this.#createList(parent, actor, ACTION_RECURSION, false, 'recursion', 'CYPHERSYSTEM.Recursions', 
             (item) => item.name == recursionname );
-        this.#createList(parent, actor, tokenId, ACTION_TAG, false, 'tag', 'CYPHERSYSTEM.Tags',
+        this.#createList(parent, actor, ACTION_TAG, false, 'tag', 'CYPHERSYSTEM.Tags',
             (item) => item.system.active );
     }
 } // MyActionHandler
@@ -150,46 +143,41 @@ class MyActionHandler extends coreModule.api.ActionHandler {
 
 class MyRollHandler extends coreModule.api.RollHandler {
 
-    async handleActionClick(event, encodedValue) {
-        let payload = encodedValue.split(this.delimiter);
-    
-        if (payload.length != 4) {
-          super.throwInvalidValueErr();
-        }
-    
-        const [macroType, actorId, tokenId, actionId] = payload;
-
-        const actor = coreModule.api.Utils.getActor(actorId, tokenId);
+    async handleActionClick(event) {
+        
         if (this.isRenderItem()) {
             // Nothing to display for action pools
-            if (macroType != ACTION_POOL) this.renderItem(actor, actionId)
+            if (this.action.system.actionId !== ACTION_POOL) this.renderItem(this.actor, this.action.system.itemId)
             return;
         }
             
-        switch (macroType) {
+        switch (this.action.system.actionId) {
           case ACTION_POOL:
             // might-roll | speed-roll | intellect-roll
-            game.cyphersystem.rollEngineMain({actorUuid: actor.uuid, pool: actionId});
+            game.cyphersystem.rollEngineMain({
+                actorUuid: this.actor.uuid,
+                pool: this.action.system.poolId
+            });
             break;
           case ACTION_ATTACK:
             // item-roll
-            game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", false, "")
+            game.cyphersystem.itemRollMacro(this.actor, this.action.system.itemId, "", "", "", "", "", "", "", "", "", "", "", "", false, "")
             break;
           case ACTION_SKILL:
             // item-roll
-            game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", false, "")
+            game.cyphersystem.itemRollMacro(this.actor, this.action.system.itemId, "", "", "", "", "", "", "", "", "", "", "", "", false, "")
             break;
           case ACTION_ABILITY:
             // item-pay
-            game.cyphersystem.itemRollMacro(actor, actionId, "", "", "", "", "", "", "", "", "", "", "", "", true, "")
+            game.cyphersystem.itemRollMacro(this.actor, this.action.system.itemId, "", "", "", "", "", "", "", "", "", "", "", "", true, "")
             break;
           case ACTION_RECURSION:
             // transition to a recursion
-            await game.cyphersystem.recursionMacro(actor, coreModule.api.Utils.getItem(actor,  actionId))
+            await game.cyphersystem.recursionMacro(this.actor, coreModule.api.Utils.getItem(this.actor, this.action.system.itemId))
             break;
           case ACTION_TAG:
             // toggle the state of a tag
-            await game.cyphersystem.tagMacro(actor, coreModule.api.Utils.getItem(actor,  actionId))
+            await game.cyphersystem.tagMacro(this.actor, coreModule.api.Utils.getItem(this.actor, this.action.system.itemId))
             break;
         }
 
